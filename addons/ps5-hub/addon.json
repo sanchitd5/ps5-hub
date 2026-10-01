@@ -9,10 +9,10 @@
   "url": "https://github.com/sanchitd5/ps5-hub",
   "documentation": "https://github.com/sanchitd5/ps5-hub",
   "ports": {
-    "80/tcp": 80
+    "8081/tcp": 8081
   },
   "ports_description": {
-    "80/tcp": "HTTP server for hub dashboard"
+    "8081/tcp": "HTTP server for hub dashboard"
   },
   "arch": ["armhf", "armv7", "aarch64"],
   "startup": "application",

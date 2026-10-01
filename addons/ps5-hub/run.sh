@@ -5,4 +5,4 @@ echo "Starting PS5 Hub..."
 
 cd /app/www
 
-python3 -m http.server 80
+python3 -m http.server 8081
