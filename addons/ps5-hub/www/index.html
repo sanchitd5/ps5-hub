@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PS5 Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>PS5 Hub</h1>
+      <p class="subtitle">Plugins & Tools</p>
+    </header>
+
+    <main class="grid" id="pluginGrid">
+      <!-- Plugins loaded dynamically here -->
+    </main>
+
+    <div id="message" class="message"></div>
+  </div>
+
+  <div id="iframeModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Close">×</button>
+      <iframe id="iframeContainer" src="" frameborder="0"></iframe>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
