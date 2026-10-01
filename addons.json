@@ -1,0 +1,10 @@
+{
+  "addons": {
+    "ps5_hub": {
+      "name": "PS5 Hub",
+      "description": "Extensible PlayStation 5 plugin dashboard",
+      "url": "https://github.com/sanchitd5/ps5-hub/tree/main/addons/ps5-hub",
+      "maintainer": "sanchitd5"
+    }
+  }
+}
