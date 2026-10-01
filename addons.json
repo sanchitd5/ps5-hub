@@ -1,4 +1,7 @@
 {
+  "name": "PS5 Hub Repository",
+  "url": "https://github.com/sanchitd5/ps5-hub",
+  "maintainer": "sanchitd5",
   "addons": {
     "ps5_hub": {
       "name": "PS5 Hub",
