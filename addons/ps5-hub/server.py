@@ -134,28 +134,37 @@ def get_server_cert():
 
 
 def start_plugin_servers():
+    """Start each plugin's listener independently — one plugin failing to
+    start (missing directory, port already bound, etc.) must not prevent
+    the others or the main dashboard from running."""
     for name, (port, base_dir) in PLUGIN_PORTS.items():
-        if not os.path.isdir(base_dir):
-            print(f"[-] Skipping plugin '{name}': {base_dir} not found")
-            continue
-        handler = make_static_handler(base_dir)
-        httpd = http.server.ThreadingHTTPServer(("0.0.0.0", port), handler)
-        threading.Thread(target=httpd.serve_forever, daemon=True).start()
-        print(f"[+] Plugin '{name}' serving {base_dir} on 0.0.0.0:{port} (HTTP)")
+        try:
+            if not os.path.isdir(base_dir):
+                print(f"[-] Skipping plugin '{name}': {base_dir} not found")
+                continue
+            handler = make_static_handler(base_dir)
+            httpd = http.server.ThreadingHTTPServer(("0.0.0.0", port), handler)
+            threading.Thread(target=httpd.serve_forever, daemon=True).start()
+            print(f"[+] Plugin '{name}' serving {base_dir} on 0.0.0.0:{port} (HTTP)")
+        except Exception as exc:
+            print(f"[-] Plugin '{name}' failed to start on port {port}: {exc}")
 
 
 if __name__ == "__main__":
+    try:
+        redirector = http.server.ThreadingHTTPServer(("0.0.0.0", HTTP_PORT), RedirectToHttpsHandler)
+        threading.Thread(target=redirector.serve_forever, daemon=True).start()
+        print(f"[+] Redirecting 0.0.0.0:{HTTP_PORT} -> https (HTTP)")
+    except Exception as exc:
+        print(f"[-] HTTP redirector failed to start on port {HTTP_PORT}: {exc}")
+
+    start_plugin_servers()
+
     cert_path, key_path = get_server_cert()
     httpd = http.server.ThreadingHTTPServer(("0.0.0.0", HTTPS_PORT), Handler)
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain(certfile=cert_path, keyfile=key_path)
     httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
-
-    redirector = http.server.ThreadingHTTPServer(("0.0.0.0", HTTP_PORT), RedirectToHttpsHandler)
-    threading.Thread(target=redirector.serve_forever, daemon=True).start()
-    print(f"[+] Redirecting 0.0.0.0:{HTTP_PORT} -> https (HTTP)")
-
-    start_plugin_servers()
 
     print(f"[+] Serving {BASE_DIR} on 0.0.0.0:{HTTPS_PORT} (HTTPS)")
     httpd.serve_forever()
