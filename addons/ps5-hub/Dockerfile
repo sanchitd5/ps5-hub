@@ -35,10 +35,12 @@ RUN set +e; \
         > webkit-autoloader/frontend/autoloader/index.html; \
     fi
 
-# relapse (ntfargo): plain static site, no build step.
+# relapse (ntfargo): plain static site, no build step. payloads/
+# (kexp.bin + elfldr.elf) are required at runtime by kexp.js — not
+# optional extras.
 RUN set +e; \
     git clone --depth=1 https://github.com/ntfargo/Relapse-Exploit.git relapse-ntfargo && \
-    rm -rf relapse-ntfargo/.git relapse-ntfargo/payloads; \
+    rm -rf relapse-ntfargo/.git; \
     if [ ! -f relapse-ntfargo/index.html ]; then \
       echo "[fetch] relapse-ntfargo clone failed, writing placeholder" >&2; \
       rm -rf relapse-ntfargo; \
