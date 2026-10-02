@@ -9,10 +9,12 @@ card links out to its own plugin/add-on.
 """
 import http.server
 import os
+import posixpath
 import ssl
 import subprocess
 import tempfile
 import threading
+import urllib.parse
 
 HTTPS_PORT = 443
 HTTP_PORT = 80
@@ -20,11 +22,57 @@ BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "www")
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
+    """Static file server for the dashboard.
+
+    The PS5's User's Guide requests /document/en/ps5/index.html (and the
+    app hardcodes /app/... for its own asset paths) — both need to be
+    rewritten back onto this flat www/ directory, the same mapping
+    host.py's DualDirHandler does for the standalone PC-host build.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=BASE_DIR, **kwargs)
 
     def log_message(self, fmt, *args):
         print("[HTTP] " + (fmt % args))
+
+    def _relative_path(self):
+        path = self.path.split("?", 1)[0].split("#", 1)[0]
+
+        if path.startswith("/document/") and "/ps5/" in path:
+            path = "/" + path.split("/ps5/", 1)[1]
+
+        if path.startswith("/app/"):
+            path = path[4:]
+
+        try:
+            path = urllib.parse.unquote(path, errors="surrogatepass")
+        except UnicodeDecodeError:
+            path = urllib.parse.unquote(path)
+        path = posixpath.normpath(path)
+        words = [
+            word for word in path.split("/")
+            if word and not (os.path.dirname(word) or word in (os.curdir, os.pardir))
+        ]
+        return "/".join(words)
+
+    def send_head(self):
+        raw_path = self.path.split("?", 1)[0].split("#", 1)[0]
+        rel = self._relative_path()
+
+        candidates = [rel]
+        if not rel or rel.endswith("/"):
+            candidates = [rel + name for name in ("index.html", "index.htm")]
+
+        for candidate in candidates:
+            full = os.path.join(BASE_DIR, candidate)
+            if os.path.isfile(full):
+                self.path = "/" + candidate
+                return super().send_head()
+
+        self.send_error(404, "File not found")
+        print(f"[HTTP] {self.command} {raw_path} -> Not Found")
+        return None
 
 
 class RedirectToHttpsHandler(http.server.BaseHTTPRequestHandler):
