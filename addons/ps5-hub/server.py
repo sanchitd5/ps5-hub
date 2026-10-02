@@ -12,8 +12,10 @@ import os
 import ssl
 import subprocess
 import tempfile
+import threading
 
-PORT = 443
+HTTPS_PORT = 443
+HTTP_PORT = 80
 BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "www")
 
 
@@ -23,6 +25,24 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def log_message(self, fmt, *args):
         print("[HTTP] " + (fmt % args))
+
+
+class RedirectToHttpsHandler(http.server.BaseHTTPRequestHandler):
+    def log_message(self, fmt, *args):
+        print("[HTTP->HTTPS] " + (fmt % args))
+
+    def _redirect(self):
+        host = self.headers.get("Host", "").split(":", 1)[0]
+        location = f"https://{host}{self.path}"
+        self.send_response(301)
+        self.send_header("Location", location)
+        self.end_headers()
+
+    def do_GET(self):
+        self._redirect()
+
+    def do_HEAD(self):
+        self._redirect()
 
 
 def get_server_cert():
@@ -44,9 +64,14 @@ def get_server_cert():
 
 if __name__ == "__main__":
     cert_path, key_path = get_server_cert()
-    httpd = http.server.ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
+    httpd = http.server.ThreadingHTTPServer(("0.0.0.0", HTTPS_PORT), Handler)
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain(certfile=cert_path, keyfile=key_path)
     httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
-    print(f"[+] Serving {BASE_DIR} on 0.0.0.0:{PORT} (HTTPS)")
+
+    redirector = http.server.ThreadingHTTPServer(("0.0.0.0", HTTP_PORT), RedirectToHttpsHandler)
+    threading.Thread(target=redirector.serve_forever, daemon=True).start()
+    print(f"[+] Redirecting 0.0.0.0:{HTTP_PORT} -> https (HTTP)")
+
+    print(f"[+] Serving {BASE_DIR} on 0.0.0.0:{HTTPS_PORT} (HTTPS)")
     httpd.serve_forever()
