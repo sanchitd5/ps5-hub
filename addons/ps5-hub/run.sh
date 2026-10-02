@@ -7,9 +7,8 @@ cd /app/www
 
 PAYLOAD_MANAGER_URL="$(bashio::config 'payload_manager_url')"
 WEBKIT_AUTOLOADER_URL="$(bashio::config 'webkit_autoloader_url')"
-EXPLOIT_REDIRECT_URL="$(bashio::config 'exploit_redirect_url')"
 
-export PAYLOAD_MANAGER_URL WEBKIT_AUTOLOADER_URL EXPLOIT_REDIRECT_URL
+export PAYLOAD_MANAGER_URL WEBKIT_AUTOLOADER_URL
 
 envsubst < plugins.json.tpl > plugins.json
 
