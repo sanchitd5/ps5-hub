@@ -1,18 +1,24 @@
 {
   "name": "PS5 Hub",
   "description": "Extensible PlayStation 5 plugin dashboard",
-  "version": "685d2c6",
+  "version": "merged-plugins-1",
   "slug": "ps5-hub",
   "maintainer": "sanchitd5 <sanchitd4@gmail.com>",
   "url": "https://github.com/sanchitd5/ps5-hub",
   "documentation": "https://github.com/sanchitd5/ps5-hub",
   "ports": {
     "443/tcp": 443,
-    "80/tcp": 80
+    "80/tcp": 80,
+    "8082/tcp": 8082,
+    "8083/tcp": 8083,
+    "8084/tcp": 8084
   },
   "ports_description": {
     "443/tcp": "HTTPS: manuals.playstation.net DNS-rewrite target + hub dashboard",
-    "80/tcp": "HTTP: redirects to HTTPS"
+    "80/tcp": "HTTP: redirects to HTTPS",
+    "8082/tcp": "WebKit Autoloader exploit files",
+    "8083/tcp": "Relapse Exploit (ntfargo)",
+    "8084/tcp": "Relapse Exploit (soniciso1)"
   },
   "arch": [
     "armhf",

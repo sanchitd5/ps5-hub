@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""HTTPS entry point for PS5 Hub.
+"""Entry point for PS5 Hub.
 
 AdGuard DNS-rewrites manuals.playstation.net straight to this add-on's
 IP with no port control, and the PS5 browser hardcodes HTTPS, so this
 needs to answer on 443 directly to make the hostname a usable bookmark
-for the dashboard. Plain static file server otherwise — each dashboard
-card links out to its own plugin/add-on.
+for the dashboard. Each dashboard card used to link out to its own
+plugin add-on's container; those are now vendored here instead and
+each gets its own plain-HTTP listener on its own port, run as a thread
+inside this one process.
 """
 import http.server
 import os
@@ -18,16 +20,37 @@ import urllib.parse
 
 HTTPS_PORT = 443
 HTTP_PORT = 80
-BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "www")
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.join(APP_DIR, "www")
+
+# Vendored plugin file-trees, each served flat on its own port — same
+# layout as when they were separate add-ons (see www/ for the dashboard).
+PLUGIN_PORTS = {
+    "webkit-autoloader": (8082, os.path.join(APP_DIR, "plugins", "webkit-autoloader")),
+    "relapse": (8083, os.path.join(APP_DIR, "plugins", "relapse")),
+    "relapse-sonic": (8084, os.path.join(APP_DIR, "plugins", "relapse-sonic")),
+}
+
+
+def make_static_handler(base_dir):
+    class StaticHandler(http.server.SimpleHTTPRequestHandler):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, directory=base_dir, **kwargs)
+
+        def log_message(self, fmt, *args):
+            print(f"[HTTP:{base_dir}] " + (fmt % args))
+
+    return StaticHandler
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     """Static file server for the dashboard.
 
     The PS5's User's Guide requests /document/en/ps5/index.html (and the
-    app hardcodes /app/... for its own asset paths) — both need to be
-    rewritten back onto this flat www/ directory, the same mapping
-    host.py's DualDirHandler does for the standalone PC-host build.
+    webkit-autoloader app hardcodes /app/... for its own asset paths) —
+    both need to be rewritten back onto this flat www/ directory, the
+    same mapping host.py's DualDirHandler does for the standalone
+    PC-host build.
     """
 
     def __init__(self, *args, **kwargs):
@@ -110,6 +133,17 @@ def get_server_cert():
     return cert_path, key_path
 
 
+def start_plugin_servers():
+    for name, (port, base_dir) in PLUGIN_PORTS.items():
+        if not os.path.isdir(base_dir):
+            print(f"[-] Skipping plugin '{name}': {base_dir} not found")
+            continue
+        handler = make_static_handler(base_dir)
+        httpd = http.server.ThreadingHTTPServer(("0.0.0.0", port), handler)
+        threading.Thread(target=httpd.serve_forever, daemon=True).start()
+        print(f"[+] Plugin '{name}' serving {base_dir} on 0.0.0.0:{port} (HTTP)")
+
+
 if __name__ == "__main__":
     cert_path, key_path = get_server_cert()
     httpd = http.server.ThreadingHTTPServer(("0.0.0.0", HTTPS_PORT), Handler)
@@ -120,6 +154,8 @@ if __name__ == "__main__":
     redirector = http.server.ThreadingHTTPServer(("0.0.0.0", HTTP_PORT), RedirectToHttpsHandler)
     threading.Thread(target=redirector.serve_forever, daemon=True).start()
     print(f"[+] Redirecting 0.0.0.0:{HTTP_PORT} -> https (HTTP)")
+
+    start_plugin_servers()
 
     print(f"[+] Serving {BASE_DIR} on 0.0.0.0:{HTTPS_PORT} (HTTPS)")
     httpd.serve_forever()
