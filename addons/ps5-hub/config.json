@@ -1,7 +1,7 @@
 {
   "name": "PS5 Hub",
   "description": "Extensible PlayStation 5 plugin dashboard",
-  "version": "merged-plugins-1",
+  "version": "f48495a",
   "slug": "ps5-hub",
   "maintainer": "sanchitd5 <sanchitd4@gmail.com>",
   "url": "https://github.com/sanchitd5/ps5-hub",
