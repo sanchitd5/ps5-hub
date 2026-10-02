@@ -3,9 +3,7 @@
   "description": "Extensible PlayStation 5 plugin dashboard",
   "version": "1.0.0",
   "slug": "ps5-hub",
-  "maintenance": {
-    "author": "sanchitd5"
-  },
+  "maintainer": "sanchitd5 <sanchitd4@gmail.com>",
   "url": "https://github.com/sanchitd5/ps5-hub",
   "documentation": "https://github.com/sanchitd5/ps5-hub",
   "ports": {
@@ -17,7 +15,6 @@
   "arch": ["armhf", "armv7", "aarch64"],
   "startup": "application",
   "boot": "auto",
-  "privileged": false,
   "network": true,
   "init": false,
   "options": {
