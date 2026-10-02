@@ -1,7 +1,7 @@
 {
   "name": "PS5 Hub",
   "description": "Extensible PlayStation 5 plugin dashboard",
-  "version": "1.0.0",
+  "version": "bcd4980",
   "slug": "ps5-hub",
   "maintainer": "sanchitd5 <sanchitd4@gmail.com>",
   "url": "https://github.com/sanchitd5/ps5-hub",
@@ -12,7 +12,11 @@
   "ports_description": {
     "443/tcp": "HTTPS: manuals.playstation.net DNS-rewrite target + hub dashboard"
   },
-  "arch": ["armhf", "armv7", "aarch64"],
+  "arch": [
+    "armhf",
+    "armv7",
+    "aarch64"
+  ],
   "startup": "application",
   "boot": "auto",
   "network": true,
