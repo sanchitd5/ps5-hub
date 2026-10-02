@@ -15,6 +15,14 @@
       "description": "Load WebKit exploit and payloads",
       "target": "${WEBKIT_AUTOLOADER_URL}",
       "type": "link"
+    },
+    {
+      "id": "relapse-exploit",
+      "name": "Relapse Exploit",
+      "icon": "icons/relapse-exploit.png",
+      "description": "WebKit+kernel exploit chain (FW 7.00-13.60)",
+      "target": "${RELAPSE_EXPLOIT_URL}",
+      "type": "link"
     }
   ]
 }
