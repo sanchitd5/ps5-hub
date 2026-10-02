@@ -23,6 +23,14 @@
       "description": "WebKit+kernel exploit chain (FW 7.00-13.60)",
       "target": "${RELAPSE_EXPLOIT_URL}",
       "type": "link"
+    },
+    {
+      "id": "relapse-sonic",
+      "name": "Relapse (soniciso1)",
+      "icon": "icons/relapse-sonic.png",
+      "description": "Alternate Relapse build (FW 7.00-13.60)",
+      "target": "${RELAPSE_SONIC_URL}",
+      "type": "link"
     }
   ]
 }

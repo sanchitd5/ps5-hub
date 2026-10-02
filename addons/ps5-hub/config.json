@@ -26,11 +26,13 @@
   "options": {
     "payload_manager_url": "http://192.168.1.4:8000",
     "webkit_autoloader_url": "http://192.168.1.3:8082/",
-    "relapse_exploit_url": "http://192.168.1.3:8083/"
+    "relapse_exploit_url": "http://192.168.1.3:8083/",
+    "relapse_sonic_url": "http://192.168.1.3:8084/"
   },
   "schema": {
     "payload_manager_url": "url",
     "webkit_autoloader_url": "url",
-    "relapse_exploit_url": "url"
+    "relapse_exploit_url": "url",
+    "relapse_sonic_url": "url"
   }
 }

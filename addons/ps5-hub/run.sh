@@ -8,8 +8,9 @@ cd /app/www
 PAYLOAD_MANAGER_URL="$(bashio::config 'payload_manager_url')"
 WEBKIT_AUTOLOADER_URL="$(bashio::config 'webkit_autoloader_url')"
 RELAPSE_EXPLOIT_URL="$(bashio::config 'relapse_exploit_url')"
+RELAPSE_SONIC_URL="$(bashio::config 'relapse_sonic_url')"
 
-export PAYLOAD_MANAGER_URL WEBKIT_AUTOLOADER_URL RELAPSE_EXPLOIT_URL
+export PAYLOAD_MANAGER_URL WEBKIT_AUTOLOADER_URL RELAPSE_EXPLOIT_URL RELAPSE_SONIC_URL
 
 envsubst < plugins.json.tpl > plugins.json
 
